@@ -149,10 +149,10 @@ def get_data_on_grid_of_interest(lon,
     indices2 = np.unique(indices[1])
     grid = np.meshgrid(indices1, indices2)
     
-    lon = lon[grid]
-    lat = lat[grid]
+    lon = lon[grid[0],grid[1]]
+    lat = lat[grid[0],grid[1]]
     for i in range(len(z_list)):
-        z_list[i] = z_list[i][grid]
+        z_list[i] = z_list[i][grid[0],grid[1]]
     return lon, lat, z_list
 
 
