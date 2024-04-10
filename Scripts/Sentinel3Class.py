@@ -930,4 +930,78 @@ class sentinel3:
                                                         multi_refs=S2_multi_refs,
                                                         save=save_results
                                                         )
-            
+
+    
+    def create_single_image(self, omega1, omega2, title):
+
+        '''
+        Creates an image with two plots for different values of omega in the studied location.
+        '''
+    
+        # Define colorscale limits
+        standard_deviations = 5
+        vmax_omega1 = np.mean(omega1) + standard_deviations * np.std(omega1)
+        vmax_omega2 = np.mean(omega2) + standard_deviations * np.std(omega2)
+    
+        # Get grid area in km
+        myGeod = geodesic.Geodesic()
+        shapelyObject_horizontal = LineString([(self.grid_of_interest[0], self.grid_of_interest[2]), (self.grid_of_interest[1], self.grid_of_interest[2])])
+        shapelyObject_vertical = LineString([(self.grid_of_interest[0], self.grid_of_interest[2]), (self.grid_of_interest[0], self.grid_of_interest[3])])
+        horizontal_distance = int(myGeod.geometry_length(shapelyObject_horizontal)/1000)
+        vertical_distance = int(myGeod.geometry_length(shapelyObject_vertical)/1000)
+    
+        # Load Google Earth background image
+        cimgt.QuadtreeTiles.get_image = image_spoof # reformat web request for street map spoofing
+        img = cimgt.QuadtreeTiles() # spoofed, downloaded street map
+    
+        # Define units for lonlat
+        if self.lon >= 0.:
+            lon_unit = '$\degree$E'
+        else:
+            lon_unit = '$\degree$W'
+        if self.lat >= 0.:
+            lat_unit = '$\degree$N'
+        else:
+            lat_unit = '$\degree$S'
+    
+        # Initialize figure
+        fig = plt.figure(figsize=(14, 7))
+    
+        # Figure title
+        fig.suptitle(
+            self.plume_name + '  |  ' + str(np.around(self.lon, decimals=2))  + lon_unit +  '  ' + str(np.around(self.lat, decimals=2)) + lat_unit + '  |  ' + 'Area=' + str(horizontal_distance) + 'x' + str(vertical_distance) + '$km^2$ \n' +
+            title,
+            fontsize=10)
+    
+        #### Subfigure 1
+        ax1 = fig.add_subplot(1, 2, 1, projection=img.crs)
+        ax1.set_title('$\Omega$')
+        ax1.set_extent([self.lon-0.15, self.lon+0.15, self.lat-0.15, self.lat+0.15])
+        ax1.coastlines()
+        ax1.text(-0.1, 1.1, 'A', transform=ax1.transAxes, size=16, weight='bold')
+        gl = ax1.gridlines(draw_labels=True)
+        gl.top_labels = False
+        gl.right_labels = False
+        ax1.add_image(img, 14)
+        pcm = ax1.pcolormesh(self.lon_grid, self.lat_grid, omega1, cmap=plt.cm.coolwarm, norm='log', vmax=vmax_omega1, shading='auto', transform=ccrs.PlateCarree())
+        plt.colorbar(pcm, label='methane anomaly (mol/m^2)', orientation='horizontal')
+        scalebar = ScaleBar(1.0,  location='lower right')
+        plt.gca().add_artist(scalebar)
+        plt.scatter(self.lon, self.lat, s=100, c='black', marker='x', transform=ccrs.PlateCarree())
+    
+        #### Subfigure 2
+        ax2 = fig.add_subplot(1, 2, 2, projection=img.crs)
+        ax2.set_title('Filtered $\Omega$')
+        ax2.set_extent([self.lon-0.15, self.lon+0.15, self.lat-0.15, self.lat+0.15])
+        ax2.coastlines()
+        ax2.text(-0.1, 1.05, 'B', transform=ax2.transAxes, size=16, weight='bold')
+        gl = ax2.gridlines(draw_labels=True)
+        gl.top_labels = False
+        gl.right_labels = False
+        ax2.add_image(img, 14)
+        pcm = ax2.pcolormesh(self.lon_grid, self.lat_grid, omega2, cmap=plt.cm.coolwarm, norm='log', vmax=vmax_omega2, shading='auto', transform=ccrs.PlateCarree())
+        plt.colorbar(pcm, label='methane anomaly (mol/m^2)', orientation='horizontal')
+        scalebar = ScaleBar(1.0,  location='lower right')
+        plt.gca().add_artist(scalebar)
+        plt.scatter(self.lon, self.lat, s=100, c='black', marker='x', transform=ccrs.PlateCarree())
+        return
