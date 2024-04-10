@@ -21,6 +21,8 @@ from math import *
 import numpy as np
 import matplotlib.pyplot as plt
 from IPython.display import display, Image
+import matplotlib.cbook as cbook
+from matplotlib_scalebar.scalebar import ScaleBar
 from pylab import * 
 from datetime import datetime,date,timedelta
 import ee, pickle
@@ -174,7 +176,7 @@ class ch4ret:
         
         self.obs_ind[scene_date]=  index
         
-        if self.verbose: print (" .....  Sucessful observation")
+        if self.verbose: print (" .....  Successful observation")
         last_good_day= day 
         data[day]= {}
 #        if self.verbose: print( "     ",   str(scene_date)[:19], ' Cloud percentage : %2.2f '%(self.cloud_percentage))
@@ -224,13 +226,9 @@ class ch4ret:
 
     """
     old_index = self.check_obs_ind(date)
-    if not old_index  is None:
-      return old_index
-      
       
     aoi = self.aoi
     gdate = ee.Date(date)
-  
 
     search_range= 60 #days forward
     sat=self.TOA_satellite
@@ -279,7 +277,7 @@ class ch4ret:
         
         self.obs_ind[scene_date]=  index
         
-        if self.verbose: print (" .....  Sucessful observation")
+        if self.verbose: print (" .....  Successful observation")
 
 #        if self.verbose: print( "     ",   str(scene_date)[:19], ' Cloud percentage : %2.2f '%(self.cloud_percentage))          
         return index
@@ -381,7 +379,7 @@ class ch4ret:
 
     method=self.method
 
-    #ref_date=self.ref_date
+    ref_date=self.ref_date
     main_date= self.main_date
     lat=self.lat
     lng=self.lng
@@ -404,10 +402,10 @@ class ch4ret:
  
 
     if str(acq_date.date() )== str(acq_date_old.date())  : 
-        	acq_date_old = acq_date_old + timedelta(seconds = 24*3600)
-        	self.ref_index = self.searchBandData (acq_date_old)
-    R11old,R12old,rgb_old,acq_date_old,info_old=self.banddata(acq_date_old, self.ref_index)	
-                
+	acq_date_old = acq_date_old + timedelta(seconds = 24*3600)
+	self.ref_index = self.searchBandData (acq_date_old)
+	R11old,R12old,rgb_old,acq_date_old,info_old=self.banddata(acq_date_old, self.ref_index)	
+	
 
       
     self.main_date=acq_date;self.ref_date=acq_date_old
@@ -547,19 +545,24 @@ class ch4ret:
     fig= plt.figure(figsize=(20, 10))
     ax=plt.subplot(1,2,1)
     plt.sca(ax)
-    im = ax.imshow(self.delR,cmap='inferno')
+    omega = fullMBMP2Omega(self.delR, 'S2', self.sza1, self.vza1)
+    im = ax.imshow(omega,cmap='inferno')
+    fig.colorbar(im, label='methane anomaly (mol/m^2)', orientation='horizontal')
+    scalebar = ScaleBar(20, 'm', location='lower right')
+    plt.gca().add_artist(scalebar)
     ax.set_title('  Method: %s | Location: %6.3f \N{DEGREE SIGN}N ,%6.3f \N{DEGREE SIGN}E \n Main date: %s | Ref date: %s \
        \n WS= %4.1f m/s (%3.2f deg) | area=%dx%d  km$^2$ '%(self.method ,self.lat,self.lng, \
                                                 str(self.main_date)[:16],str(self.ref_date)[:16], self.wind_speed, self.wind_dir,\
                                                 self.area,self.area ),loc='center')
        
     ax.plot(self.delR.shape[0]/2 , self.delR.shape[1]/2, marker = 'x' , color = 'white')
+		ax.text(-0.1, 1.1, 'A', transform=ax.transAxes, size=16, weight='bold')
     if olat!=None and olng!=None:
         n=len(olat)
         cx, cy= self.make_cross(self.lat, self.lng, olat, olng)
         for i in range(0,n):
             ax.plot(self.delR.shape[0]*cx[i] , self.delR.shape[1]*cy[i], marker = 'x' , color = 'white')
-    im.set_clim((-0.15,0.15))
+    #im.set_clim((-0.15,0.15))
     #im.set_clim((0,0.2))
     q=ax.quiver(self.delR.shape[0]*0.9,self.delR.shape[1]*0.9,self.u10,self.v10,width=0.005,color='w')
 
@@ -567,6 +570,7 @@ class ch4ret:
     plt.gca().axes.get_xaxis().set_visible(False)
 
     axx=plt.subplot(2,4,8)
+		axx.text(-0.1, 1.1, 'E', transform=axx.transAxes, size=16, weight='bold')
     im= axx.imshow(self.refR,cmap='gray' )
     #im.set_clim((0.3,0.8))
     axx.plot(self.delR.shape[0]/2 , self.delR.shape[1]/2, marker = 'x' , color = 'red')
@@ -582,6 +586,7 @@ class ch4ret:
     axx.axes.get_xaxis().set_visible(False)
 
     axx=plt.subplot(2,4,7)
+		axx.text(-0.1, 1.1, 'D', transform=axx.transAxes, size=16, weight='bold')
     im= axx.imshow(self.mainR,cmap='gray' )
     #im.set_clim((0.3,0.8))
     axx.plot(self.delR.shape[0]/2 , self.delR.shape[1]/2, marker = 'x' , color = 'red')
@@ -595,6 +600,7 @@ class ch4ret:
     axx.axes.get_xaxis().set_visible(False)
 
     axx=plt.subplot(2,4,3)
+		axx.text(-0.1, 1.1, 'B', transform=axx.transAxes, size=16, weight='bold')
     im= axx.imshow(self.rgb)
     #im.set_clim((0,0.5))
     axx.plot(self.rgb.shape[0]/2 , self.rgb.shape[1]/2, marker = 'x' , color = 'white')
@@ -608,6 +614,7 @@ class ch4ret:
     axx.axes.get_xaxis().set_visible(False)
 
     axx=plt.subplot(2,4,4)
+		axx.text(-0.1, 1.1, 'C', transform=axx.transAxes, size=16, weight='bold')
     im= axx.imshow(self.rgb_old)
     #im.set_clim((0,0.5))
     axx.plot(self.rgb.shape[0]/2 , self.rgb.shape[1]/2, marker = 'x' , color = 'white')
@@ -1117,10 +1124,10 @@ class ch4ret:
        \n WS= %4.1f m/s (%3.2f deg) | area=%dx%d  km$^2$ '%(self.method ,self.lat,self.lng, \
                                                 str(self.main_date)[:16],str(self.ref_date)[:16], self.wind_speed, self.wind_dir,\
                                                 self.area,self.area ),loc='center')
-    #cbar = plt.colorbar(shrink= 0.5)
+    cbar = plt.colorbar(shrink= 0.5)
     plt.plot(del_omega.shape[0]/2 , del_omega.shape[1]/2, marker = 'x' , color = 'black')
-    #cbar.set_label('Methane column enhancement (mol/m2)', labelpad=10,rotation=270) 
-    q=ax.quiver(delR.shape[0]*0.9,delR.shape[1]*0.9,self.u10,self.v10)
+    cbar.set_label('Methane column enhancement (mol/m2)', labelpad=10,rotation=270) 
+    q=ax.quiver(self.delR.shape[0]*0.9,self.delR.shape[1]*0.9,self.u10,self.v10)
     plt.clim((-2,2))
     plt.gca().axes.get_yaxis().set_visible(False)
     plt.gca().axes.get_xaxis().set_visible(False)
