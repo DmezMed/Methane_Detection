@@ -1,19 +1,17 @@
 # Methane Plume Detection 
-Code for methane plume detection and quantification using Sentinel-2, Sentinel-3, and Landsat instruments
+Based on [sudshu/Pandey_2023_RSE](https://github.com/sudshu/Pandey_2023_RSE). This version corrects some issues of the original code.
 
-## Methane_MSI
+Code for methane plume detection and quantification using Sentinel-2, Sentinel-3, and Landsat instruments.
 
-The Methane_MSI folder includes code for both Sentinel-2 and Landsat. This code retrieves satellite data from Google Earth Engine, which requires configuring an Earth Engine Python API.
+## Scripts
+Folder containig the necesary scripts and data files. Sentinel3_Utilities.py contains some standalone functions that are used throughout the processing. Sentinel3Class.py contains a class object that is used to analyze the Sentinel-3 observations. MS_XCH4_retrieval.py contains the Sentinel-2 and Landsat methane retrieval code.
+
+## CDSE download data
+This code downloads automatically Sentinel-3 data for the requested location and dates. The Sentinel Hub API must be configured by the user, see https://www.youtube.com/watch?v=GA50fqbrCo4&list=PLj4KwRQTBlPL3CVwpaBXl3VrO0_V3VX_Q&pp=iAQB
+
+## Sentinel-3 methane
+This notebook notebook handles the processing of Sentinel-3 SWIR data. To obtain Sentinel-3 SLSTR observations
+
+## Sentinel-2 methane
+This notebook includes code for both Sentinel-2 and Landsat. This code retrieves satellite data from Google Earth Engine, which requires configuring an Earth Engine Python API.
 https://developers.google.com/earth-engine/tutorials/community/intro-to-python-api
-
-## Sentinel-3 
-The Sentinel-3 folder handles the downloading and processing of Sentinel-3 SWIR data. To obtain Sentinel-3 SLSTR observations, the Sentinelsat API https://scihub.copernicus.eu/dhus/#/home must be configured locally by the user.
-
-
-
-
-## Cite as: 
-Pandey, S., van Nistelrooij, M., Maasakkers, J. D., Sutar, P., Houweling, S., Varon, D. J., Tol, P., Gains, D., Worden, J., and Aben, I.: Daily detection and quantification of methane leaks using Sentinel-3: a tiered satellite observation approach with Sentinel-2 and Sentinel-5p, Remote Sens. Environ., 296, 113716, https://doi.org/10.1016/j.rse.2023.113716, 2023.
-
-
-
