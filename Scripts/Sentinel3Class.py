@@ -7,6 +7,8 @@ from scipy import ndimage, fftpack
 from skimage.metrics import structural_similarity
 
 import matplotlib.pyplot as plt
+import matplotlib.cbook as cbook
+from matplotlib_scalebar.scalebar import ScaleBar
 import cartopy.crs as ccrs
 import cartopy.io.img_tiles as cimgt
 from cartopy import geodesic
@@ -14,15 +16,7 @@ from shapely.geometry import LineString
 import cv2 as cv
 import pickle
 
-sys.path.append("./Code_Tropomi")
-sys.path.append("./Code_Tropomi/helper")
-sys.path.append("./Code_Sentinel_2")
-
 from Sentinel3_Utilities import read_full_interpolated_data, normalize, to_integer, image_spoof, get_data_on_grid_of_interest
-
-# Import Tropomi data processing
-from TROPOMI_orbit_plotter import makeOrbitWisePlotsCartopy
-from region_rectangle_defination import makeCordbox
 
 # Import Sentinel 2 data processing
 import MS_XCH4_retrieval as ms
@@ -519,7 +513,7 @@ class sentinel3:
     def fullMBMP2Omega_(self, delr, satellite, sza, vza= 0, flag= True ):
         shape_omega=    delr.shape 
         delr= delr.flatten()
-        mdata= pickle.load(open('/home/maartenvn/Code/test_srf_210104_delr_to_omega.pkl', 'rb'))
+        mdata= pickle.load(open('./Scripts/data_files/test_srf_210104_delr_to_omega.pkl', 'rb'))
         
         tamf = (1/np.cos(np.radians(sza)) + 1/np.cos(np.radians(sza)))
 
@@ -623,27 +617,26 @@ class sentinel3:
             self.omega[np.where(self.omega > 100000)] = 0
 
             # Define colorscale limits
-            standard_deviations = 3
-            vmin_delR = np.mean(self.delR_mbmp_destriped) - standard_deviations * np.std(self.delR_mbmp_destriped)
-            vmax_delR = np.mean(self.delR_mbmp_destriped) + standard_deviations * np.std(self.delR_mbmp_destriped)        
-            # Get array sizes
+            standard_deviations = 5
+            vmin_omega = np.mean(self.omega_filtered) - standard_deviations * np.std(self.omega_filtered)
+            vmax_omega = np.mean(self.omega_filtered) + standard_deviations * np.std(self.omega_filtered)
             entries_horizontal = self.lon_grid.shape[0]
             entries_vertical = self.lon_grid.shape[1]
             
             # Get grid area in km
             myGeod = geodesic.Geodesic()
-            shapelyObject_horizontal = LineString([(self.grid_of_interest[0], self.grid_of_interest[1]), (self.grid_of_interest[2], self.grid_of_interest[2])])
-            shapelyObject_vertical = LineString([(self.grid_of_interest[0], self.grid_of_interest[0]), (self.grid_of_interest[2], self.grid_of_interest[3])])
+            shapelyObject_horizontal = LineString([(self.grid_of_interest[0], self.grid_of_interest[2]), (self.grid_of_interest[1], self.grid_of_interest[2])])
+            shapelyObject_vertical = LineString([(self.grid_of_interest[0], self.grid_of_interest[2]), (self.grid_of_interest[0], self.grid_of_interest[3])])
             horizontal_distance = int(myGeod.geometry_length(shapelyObject_horizontal)/1000)
             vertical_distance = int(myGeod.geometry_length(shapelyObject_vertical)/1000)
 
             # Define coordinates of wind arrows
-            lon_wind_1 = np.array([self.lon_grid[int(entries_horizontal / 10)][int(entries_vertical/10)]])
-            lat_wind_1 = np.array([self.lat_grid[int(-entries_horizontal / 10)][int(-entries_vertical/10)]])
-            lon_wind_2 = np.array([self.lon_grid[int(entries_horizontal / 10)][int(3*entries_vertical/10)]])
-            lat_wind_2 = np.array([self.lat_grid[int(-entries_horizontal / 10)][int(-3*entries_vertical/10)]])
-            lon_wind_3 = np.array([self.lon_grid[int(entries_horizontal / 10)][int(5*entries_vertical/10)]])
-            lat_wind_3 = np.array([self.lat_grid[int(-entries_horizontal / 10)][int(-5*entries_vertical/10)]])
+            lon_wind_1 = np.array([self.lon_grid[0][int(5*entries_vertical/10)]])
+            lat_wind_1 = np.array([self.lat_grid[int(-entries_vertical/5.5)][0]])
+            lon_wind_2 = np.array([self.lon_grid[0][int(6.5*entries_vertical/10)]])
+            lat_wind_2 = np.array([self.lat_grid[int(-entries_vertical/5.5)][0]])
+            lon_wind_3 = np.array([self.lon_grid[0][int(8*entries_vertical/10)]])
+            lat_wind_3 = np.array([self.lat_grid[int(-entries_vertical/5.5)][0]])
 
             # Define units for lonlat
             if self.lon >= 0.:
@@ -675,32 +668,42 @@ class sentinel3:
                     fontsize=10
                 )
                         
-            ####  Original (limited) delR MBMP with wind
+            ####  Filtered plume figure with background Google Earth image
             ax = fig.add_subplot(1, 2, 1, projection=img.crs)
             ax.set_title(
-                '$\Delta$R MBMP \n' +
-                'Wind:   ' + str(np.around(self.wind_main_minus_2hr, decimals=1)) + '    |    ' + str(np.around(self.wind_main_minus_1hr, decimals=1)) + '    |    ' + str(np.around(self.wind_main, decimals=1)) + '   m/s', loc='left',
+                'Methane. MBMP \n' +
+                'Wind 2/1/0h before:    ' + str(np.around(self.wind_main_minus_2hr, decimals=1)) + '    |    ' + str(np.around(self.wind_main_minus_1hr, decimals=1)) + '    |    ' + str(np.around(self.wind_main, decimals=1)) + '   m/s', loc='left',
                 fontsize=10)
             ax.set_extent([self.lon-0.15, self.lon+0.15, self.lat-0.15, self.lat+0.15])
 #             ax.set_extent([self.lon-0.225, self.lon+0.225, self.lat-0.175, self.lat+0.175])
             ax.coastlines()
-            gl = ax.gridlines(draw_labels=False)
-            gl.xlabels_top = False
-            gl.ylabels_right = False
-            pcm = ax.pcolormesh(self.lon_grid, self.lat_grid, self.delR_mbmp_destriped, cmap=plt.cm.coolwarm, vmin=vmin_delR, vmax=-vmin_delR, shading='auto', transform=ccrs.PlateCarree())
+            ax.text(-0.1, 1.1, 'A', transform=ax.transAxes, size=20, weight='bold')
+            gl = ax.gridlines(draw_labels=True)
+            gl.top_labels = False
+            gl.right_labels = False
+            ax.add_image(img, img_quality)
+            pcm = ax.pcolormesh(self.lon_grid, self.lat_grid, self.omega_filtered, cmap=plt.cm.coolwarm, norm='log', vmax=vmax_omega, shading='auto', transform=ccrs.PlateCarree())
+            fig.colorbar(pcm, label='methane anomaly (mol/m^2)', orientation='horizontal')
+            scalebar = ScaleBar(1.0,  location='lower right')
+            plt.gca().add_artist(scalebar)
             plt.scatter(self.lon, self.lat, s=100, c='black', marker='x', transform=ccrs.PlateCarree())            
             plt.quiver(lon_wind_1, lat_wind_1, self.u10_main_minus_2hr_norm, self.v10_main_minus_2hr_norm, scale = 10, color='black', transform=ccrs.PlateCarree())
             plt.quiver(lon_wind_2, lat_wind_2, self.u10_main_minus_1hr_norm, self.v10_main_minus_1hr_norm, scale = 10, color='black', transform=ccrs.PlateCarree())
             plt.quiver(lon_wind_3, lat_wind_3, self.u10_main_norm, self.v10_main_norm, scale = 10, color='black', transform=ccrs.PlateCarree())
 
-            ####  Filtered plume figure with background Google Earth image
+            ####  Original (limited) delR MBMP with wind
+            vmin_delR = np.mean(self.delR_mbmp_destriped) - standard_deviations * np.std(self.delR_mbmp_destriped)
+            vmax_delR = np.mean(self.delR_mbmp_destriped) + standard_deviations * np.std(self.delR_mbmp_destriped) 
             ax = fig.add_subplot(2, 4, 3, projection=img.crs)
             ax.set_title('$\Delta$R MBMP   |   $R_{MBSP}$=' + str(np.around(float(self.delR_mbsp_corr), decimals=3)), fontsize=10)
             ax.set_extent([self.lon-0.15, self.lon+0.15, self.lat-0.15, self.lat+0.15], crs=ccrs.PlateCarree())
 #             ax.set_extent([self.lon-0.225, self.lon+0.225, self.lat-0.175, self.lat+0.175])
+            ax.coastlines()
+            ax.text(-0.1, 1.1, 'B', transform=ax.transAxes, size=16, weight='bold')
             gl = ax.gridlines(draw_labels=False)
+            gl.left_labels=True
             ax.add_image(img, img_quality)
-            pcm1 = ax.pcolormesh(self.lon_grid, self.lat_grid, self.delR_mbmp_final_plume_only, cmap=plt.cm.coolwarm, vmin=vmin_delR, vmax=-vmin_delR, shading='auto', transform=ccrs.PlateCarree()) 
+            pcm1 = ax.pcolormesh(self.lon_grid, self.lat_grid, self.delR_mbmp_destriped, cmap=plt.cm.coolwarm, vmin=vmin_delR, vmax=-vmin_delR, shading='auto', transform=ccrs.PlateCarree())
 
             ####  Masks
             vmin_aux_main = np.mean(self.auxiliary_bands_main[-1]) - standard_deviations*np.std(self.auxiliary_bands_main[-1])
@@ -716,6 +719,7 @@ class sentinel3:
             ax.set_title(mask_title, fontsize=10)
             ax.set_extent([self.lon-0.15, self.lon+0.15, self.lat-0.15, self.lat+0.15], crs=ccrs.PlateCarree())
 #             ax.set_extent([self.lon-0.225, self.lon+0.225, self.lat-0.175, self.lat+0.175])
+            ax.text(-0.1, 1.1, 'C', transform=ax.transAxes, size=16, weight='bold')
             gl = ax.gridlines(draw_labels=False)
             if self.filter_delR_mask:
                 pcm = ax.pcolormesh(self.lon_grid, self.lat_grid, self.delR_mask, cmap=plt.cm.Blues, vmin=0, vmax=1., alpha=1., shading='auto', transform=ccrs.PlateCarree())
@@ -727,14 +731,18 @@ class sentinel3:
             ax.set_title('Main visual  |   $R_{vis}$=' + str(np.around(float(self.aux_corr), decimals=2)), fontsize=10)
             ax.set_extent([self.lon-0.15, self.lon+0.15, self.lat-0.15, self.lat+0.15], crs=ccrs.PlateCarree())
 #             ax.set_extent([self.lon-0.225, self.lon+0.225, self.lat-0.175, self.lat+0.175])
+            ax.text(-0.1, 1.1, 'D', transform=ax.transAxes, size=16, weight='bold')
             pcm = ax.pcolormesh(self.lon_grid, self.lat_grid, self.auxiliary_bands_main[-1], vmin=vmin_aux_main, vmax=vmax_aux_main, cmap=plt.cm.gist_gray, shading='auto', transform=ccrs.PlateCarree())
             gl = ax.gridlines(draw_labels=False)
+            gl.left_labels=True
+            gl.bottom_labels=True
             ax.scatter(self.lon, self.lat, s=70, c='white', marker='x', transform=ccrs.PlateCarree())
 
             ####  Visual band reference date (S1) with wind    
             ax = fig.add_subplot(2, 4, 8, projection=img.crs)
             ax.set_extent([self.lon-0.15, self.lon+0.15, self.lat-0.15, self.lat+0.15], crs=ccrs.PlateCarree())
 #             ax.set_extent([self.lon-0.225, self.lon+0.225, self.lat-0.175, self.lat+0.175])
+            ax.text(-0.1, 1.1, 'E', transform=ax.transAxes, size=16, weight='bold')
             pcm = ax.pcolormesh(self.lon_grid, self.lat_grid, self.auxiliary_bands_ref[-1], vmin=vmin_aux_ref, vmax=vmax_aux_ref, cmap=plt.cm.gist_gray, shading='auto', transform=ccrs.PlateCarree())
             ax.scatter(self.lon, self.lat, s=70, c='white', marker='x', transform=ccrs.PlateCarree())
             if type(self.ref_date) != str:
@@ -743,6 +751,7 @@ class sentinel3:
             else:
                 ax.set_title('Ref. visual', fontsize=10)
             gl = ax.gridlines(draw_labels=False)
+            gl.bottom_labels=True
 
             fig.tight_layout()
 
