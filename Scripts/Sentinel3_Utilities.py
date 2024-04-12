@@ -921,7 +921,7 @@ def rotate_and_average_NON_center(plume_name,
     if save:
         if not os.path.isdir('./Rotated_NON_Center/' + plume_name):
             os.makedirs('./Rotated_NON_Center/' + plume_name)
-        save_name = 'Rotated_NON_Center/' + plume_name + '/' + str(len(all_delRS)) + '_dates.png'
+        save_name = 'Rotated_NON_Center/' + plume_name + '/' + str(len(all_delRs)) + '_dates.png'
         fig.savefig(save_name, bbox_inches='tight')
         plt.close()
     else:
@@ -1024,7 +1024,7 @@ def rotate_at_multi_pixels(plume_name,
     if save:
         if not os.path.isdir('./Gamma_Grids/' + plume_name):
             os.makedirs('./Gamma_Grids/' + plume_name)
-        save_name = 'Gamma_Grids/' + plume_name + '/' + str(len(all_delRS)) + '_dates.png'
+        save_name = 'Gamma_Grids/' + plume_name + '/' + str(len(all_delRs)) + '_dates.png'
         fig.savefig(save_name, bbox_inches='tight')
         plt.close()
     else:

@@ -550,7 +550,7 @@ class ch4ret:
                                                 self.area,self.area ),loc='center')
        
     ax.plot(self.delR.shape[0]/2 , self.delR.shape[1]/2, marker = 'x' , color = 'white')
-		ax.text(-0.1, 1.1, 'A', transform=ax.transAxes, size=16, weight='bold')
+    ax.text(-0.1, 1.1, 'A', transform=ax.transAxes, size=16, weight='bold')
     if olat!=None and olng!=None:
         n=len(olat)
         cx, cy= self.make_cross(self.lat, self.lng, olat, olng)
@@ -564,7 +564,7 @@ class ch4ret:
     plt.gca().axes.get_xaxis().set_visible(False)
 
     axx=plt.subplot(2,4,8)
-		axx.text(-0.1, 1.1, 'E', transform=axx.transAxes, size=16, weight='bold')
+    axx.text(-0.1, 1.1, 'E', transform=axx.transAxes, size=16, weight='bold')
     im= axx.imshow(self.refR,cmap='gray' )
     #im.set_clim((0.3,0.8))
     axx.plot(self.delR.shape[0]/2 , self.delR.shape[1]/2, marker = 'x' , color = 'red')
@@ -580,7 +580,7 @@ class ch4ret:
     axx.axes.get_xaxis().set_visible(False)
 
     axx=plt.subplot(2,4,7)
-		axx.text(-0.1, 1.1, 'D', transform=axx.transAxes, size=16, weight='bold')
+    axx.text(-0.1, 1.1, 'D', transform=axx.transAxes, size=16, weight='bold')
     im= axx.imshow(self.mainR,cmap='gray' )
     #im.set_clim((0.3,0.8))
     axx.plot(self.delR.shape[0]/2 , self.delR.shape[1]/2, marker = 'x' , color = 'red')
@@ -594,7 +594,7 @@ class ch4ret:
     axx.axes.get_xaxis().set_visible(False)
 
     axx=plt.subplot(2,4,3)
-		axx.text(-0.1, 1.1, 'B', transform=axx.transAxes, size=16, weight='bold')
+    axx.text(-0.1, 1.1, 'B', transform=axx.transAxes, size=16, weight='bold')
     im= axx.imshow(self.rgb)
     #im.set_clim((0,0.5))
     axx.plot(self.rgb.shape[0]/2 , self.rgb.shape[1]/2, marker = 'x' , color = 'white')
@@ -608,7 +608,7 @@ class ch4ret:
     axx.axes.get_xaxis().set_visible(False)
 
     axx=plt.subplot(2,4,4)
-		axx.text(-0.1, 1.1, 'C', transform=axx.transAxes, size=16, weight='bold')
+    axx.text(-0.1, 1.1, 'C', transform=axx.transAxes, size=16, weight='bold')
     im= axx.imshow(self.rgb_old)
     #im.set_clim((0,0.5))
     axx.plot(self.rgb.shape[0]/2 , self.rgb.shape[1]/2, marker = 'x' , color = 'white')
@@ -1775,9 +1775,8 @@ def add_ee_layer(m, eeImageObject, visParams, name=''):
 def makeTropomiXCH4(lng, lat, date1 , date2= None, vrange= [1700, 2000]):
     from datetime import datetime
     from folium.plugins import MeasureControl
-    if date2 is None:
-    	date2= date1.advance(1,"days")
-    m= folium.Map(location=[lat, lng], zoom_start=12, height=500,tiles='https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',attr= 'Tiles ')
+    if date2 is None: date2= date1.advance(1,"days")
+    m = folium.Map(location=[lat, lng], zoom_start=12, height=500,tiles='https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',attr= 'Tiles ')
     palette= ['black', 'blue', 'purple', 'cyan', 'green', 'yellow', 'red']
     date1=ee.Date(date1)
     img  = ee.ImageCollection('COPERNICUS/S5P/OFFL/L3_CH4').filter(ee.Filter.date(date1, date2)).mean()
@@ -1898,7 +1897,7 @@ def fullMBMP2Omega(delr, satellite, sza, vza= 0 ):
     import pickle
     shape_omega=    delr.shape 
     delr= delr.flatten()
-    mdata= pickle.load(open('data_files/test_srf_210104_delr_to_omega.pkl', 'rb'))
+    mdata= pickle.load(open('Scripts/data_files/test_srf_210104_delr_to_omega.pkl', 'rb'))
     tamf = giveamf(sza,vza)
  #   print ("AMF", tamf, "%2.1f"%tamf)
     ind_0 = where(mdata["omegas"]== 0 )
