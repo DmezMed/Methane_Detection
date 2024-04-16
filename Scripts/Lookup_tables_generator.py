@@ -179,32 +179,32 @@ class ch4ret:
                         9.2570871385886777e-01,  1.3948196733791201e+00,  1.8562864992055403e+00,  2.1978589365315413e+00])
         w24polynom = np.poly1d(a24)
 
-        def hum1wei24 (x,y):
-	        """ Complex error function combining Humlicek's and Weideman's rational approximations:
-
-	            |x|+y>15:  Humlicek (JQSRT, 1982) rational approximation for region I;
-	            else:      J.A.C. Weideman (SIAM-NA 1994); equation (38.I) and table I.
-
-	            F. Schreier, JQSRT 112, pp. 1010-1025, 2011:  doi: 10.1016/j.jqsrt.2010.12.010 """
+        def hum1wei24(x ,y):  
+          """ 
+          Complex error function combining Humlicek's and Weideman's rational approximations:
+	        |x|+y>15:  Humlicek (JQSRT, 1982) rational approximation for region I;
+	        else:      J.A.C. Weideman (SIAM-NA 1994); equation (38.I) and table I.
+	        F. Schreier, JQSRT 112, pp. 1010-1025, 2011:  doi: 10.1016/j.jqsrt.2010.12.010
+          """
 
 	        # For safety only. Probably slows down everything. Comment it if you always have arrays (or use assertion?).
-	        #if isinstance(x,(int,float)):  x = np.array([x])  # np.atleast_1d(x)
-
-	        t = y - 1j*x
-	        w = t * recSqrtPi / (0.5 + t*t)  # Humlicek (1982) approx 1 for s>15
-
-	        if y<15.0:
-		        mask = abs(x)+y<15.       # returns true for interior points
-		        iz  = -t[np.where(mask)]  # returns small complex array covering only the interior region
-		        # the following five lines are only evaluated for the interior grid points
-		        lpiz = L24 + iz  # wL - y + x*complex(0.,1.)
-		        lmiz = L24 - iz  # wL + y - x*complex(0.,1.)
-		        recLmiZ  = 1.0 / lmiz
-		        Z  = lpiz * recLmiZ
-		        w24 = (recSqrtPi + 2.0*recLmiZ*w24polynom(Z)) * recLmiZ
-		        # replace asympotic Humlicek approximation by Weideman rational approximation in interior center region
-		        np.place(w, mask, w24)
-	        return w
+	        # if isinstance(x,(int,float)):  x = np.array([x])  # np.atleast_1d(x)
+          
+          t = y - 1j*x
+          w = t * recSqrtPi / (0.5 + t*t)  # Humlicek (1982) approx 1 for s>15
+          
+          if y<15.0:
+            mask = abs(x)+y<15.       # returns true for interior points
+            iz  = -t[np.where(mask)]  # returns small complex array covering only the interior region
+						# the following five lines are only evaluated for the interior grid points
+            lpiz = L24 + iz  # wL - y + x*complex(0.,1.)
+            lmiz = L24 - iz  # wL + y - x*complex(0.,1.)
+            recLmiZ  = 1.0 / lmiz
+            Z  = lpiz * recLmiZ
+            w24 = (recSqrtPi + 2.0*recLmiZ*w24polynom(Z)) * recLmiZ
+						# replace asympotic Humlicek approximation by Weideman rational approximation in interior center region
+            np.place(w, mask, w24)
+          return w
 
         def Voigt (vGrid, vLine=0.0, S=1.0, gammaL=1.0, gammaD=1.0):
             """ Voigt profile normalized to one, multiplied with line strength. """
@@ -748,8 +748,8 @@ def plotOpticalDepths():
     obj.abCalc('SWIR1')
     obj.abCalc('SWIR2')
     
-    T11,optd_B11=obj.radianceCalc(0,'SWIR2', sza= 0, vza = 0)
-    T11_,optd_B11_=obj.radianceCalc(1,'SWIR2', sza= 0, vza = 0)      
+    T11,optd_B11=obj.radianceCalc(0,'SWIR2')
+    T11_,optd_B11_=obj.radianceCalc(1,'SWIR2')
       
     plt.plot(optd_B11[:,0],optd_B11[:,1])
     plt.plot(optd_B11[:,0],optd_B11[:,2])
