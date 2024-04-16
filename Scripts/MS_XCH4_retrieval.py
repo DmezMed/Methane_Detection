@@ -396,9 +396,9 @@ class ch4ret:
  
 
     if str(acq_date.date() )== str(acq_date_old.date())  : 
-	acq_date_old = acq_date_old + timedelta(seconds = 24*3600)
-	self.ref_index = self.searchBandData (acq_date_old)
-	R11old,R12old,rgb_old,acq_date_old,info_old=self.banddata(acq_date_old, self.ref_index)	
+	      acq_date_old = acq_date_old + timedelta(seconds = 24*3600)
+        self.ref_index = self.searchBandData (acq_date_old)
+        R11old,R12old,rgb_old,acq_date_old,info_old=self.banddata(acq_date_old, self.ref_index)	
 	
 
       
@@ -930,6 +930,8 @@ class ch4ret:
     os.system ('mkdir -p %s/%s'%("output",self.case) )
     st_sr= datetime.now()
     
+    self.all_omegas = []
+
     while  cur_date <= end_date:
       date1 = str(cur_date.date())
       print ("\n>>>>>" ,date1,  "<<<<")
