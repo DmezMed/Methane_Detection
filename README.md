@@ -1,3 +1,5 @@
+![logo](Scripts/data_files/Tiered_obs.png)
+
 # Methane Plume Detection 
 Based on [sudshu/Pandey_2023_RSE](https://github.com/sudshu/Pandey_2023_RSE) [1]. This version solves some bugs and restructures the original code.
 
