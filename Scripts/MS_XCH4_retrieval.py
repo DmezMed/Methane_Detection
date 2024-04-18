@@ -395,10 +395,10 @@ class ch4ret:
       R11old,R12old,rgb_old,acq_date_old,info_old=self.banddata(ref_date, self.ref_index)
  
 
-    if str(acq_date.date() )== str(acq_date_old.date())  : 
-	      acq_date_old = acq_date_old + timedelta(seconds = 24*3600)
-        self.ref_index = self.searchBandData (acq_date_old)
-        R11old,R12old,rgb_old,acq_date_old,info_old=self.banddata(acq_date_old, self.ref_index)	
+    if str(acq_date.date() )== str(acq_date_old.date()):
+      acq_date_old = acq_date_old + timedelta(seconds = 24*3600)
+      self.ref_index = self.searchBandData (acq_date_old)
+      R11old,R12old,rgb_old,acq_date_old,info_old=self.banddata(acq_date_old, self.ref_index)	
 	
 
       
