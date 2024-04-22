@@ -20,6 +20,8 @@ from matplotlib.patches import ConnectionPatch, Rectangle
 from matplotlib.cm import ScalarMappable
 from matplotlib.colors import rgb2hex, Normalize, LogNorm
 from matplotlib.patches import Polygon as Poly
+import matplotlib.cbook as cbook
+from matplotlib_scalebar.scalebar import ScaleBar
 
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import cartopy.crs as ccrs
@@ -1258,3 +1260,11 @@ def create_folium_map(all_plume_names,
     fig_folium_name += '.html'
     folium.LayerControl().add_to(m)
     m.save(fig_folium_name)
+
+def omega_plot(omega, cmap='inferno', norm='log', show_scalebar='True', scale=1):
+  plt.imshow(omega, cmap=cmap, norm=norm)
+  plt.colorbar(label='methane anomaly (mol/m^2)', orientation='horizontal')
+  if show_scalebar:
+    scalebar = ScaleBar(scale, 'm', location='lower right')
+  plt.gca().add_artist(scalebar)
+  plt.axis('off')
