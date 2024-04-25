@@ -947,6 +947,8 @@ class ch4ret:
       
       delR= self.delR;      fig= self.fig_delR
       self.main_index= ''
+			omega = fullMBMP2Omega(self.delR, 'S2', self.sza1, self.vza1)
+			all_omegas.append(omega
       if delR.all()!=0:
           del_omega = np.zeros_like(delR)
          # del_omega,fig3=obj.delr_to_del_omega()
