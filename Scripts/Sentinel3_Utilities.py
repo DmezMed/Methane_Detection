@@ -5,6 +5,7 @@ import pickle
 import numpy as np
 from scipy import ndimage
 import matplotlib.pyplot as plt
+import matplotlib.ticker as tick
 
 from urllib.request import urlopen, Request
 from PIL import Image
@@ -1262,9 +1263,29 @@ def create_folium_map(all_plume_names,
     m.save(fig_folium_name)
 
 def omega_plot(omega, cmap='inferno', norm='log', show_scalebar='True', scale=1):
-  plt.imshow(omega, cmap=cmap, norm=norm)
-  plt.colorbar(label='methane anomaly (mol/m^2)', orientation='horizontal')
-  if show_scalebar:
-    scalebar = ScaleBar(scale, 'm', location='lower right')
-  plt.gca().add_artist(scalebar)
-  plt.axis('off')
+    plt.imshow(omega, cmap=cmap, norm=norm)
+    plt.colorbar(label='methane anomaly ($mol/m^2$)', orientation='horizontal')
+    plt.gca().invert_yaxis()
+    if show_scalebar:
+        scalebar = ScaleBar(scale, 'm', location='lower right')
+        plt.gca().add_artist(scalebar)
+    plt.axis('off')
+
+def lat_fmt(val, pos):
+    if val < 0:
+        return f'{-val:.2f}$\degree$S'
+    else:
+        return f'{val:.2f}$\degree$N'
+def lon_fmt(val, pos):
+    if val < 0:
+        return f'{-val:.2f}$\degree$W'
+    else:
+        return f'{val:.2f}$\degree$W'
+
+def omega_plot_with_axis(lon_grid, lat_grid, omega, cmap='inferno', norm='log'):
+    plt.pcolormesh(lon_grid, lat_grid, omega, cmap=cmap, norm=norm)
+    plt.colorbar(label='methane anomaly ($mol/m^2$)', orientation='horizontal')
+    plt.gca().xaxis.set_major_formatter(tick.FuncFormatter(lon_fmt))
+    plt.gca().yaxis.set_major_formatter(tick.FuncFormatter(lat_fmt))
+    plt.gca().xaxis.set_major_locator(plt.MultipleLocator(0.1))
+    plt.axis('scaled')
