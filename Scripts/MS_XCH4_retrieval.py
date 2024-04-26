@@ -960,10 +960,10 @@ class ch4ret:
           count+=1        
           fig.savefig(image_fname)
           print ("saving DelR image %s"%image_fname) 
-          plumedata[str(self.main_date)[:10]]={'delR':delR,'del_omega':del_omega, "main_date": str(self.main_date) , 'ref_date':str(self.ref_date)[:10],  'wind_speed':self.wind_speed,\
+          plumedata[str(self.main_date)[:10]]={'delR':delR,'omega':omega, "main_date": str(self.main_date) , 'ref_date':str(self.ref_date)[:10],  'wind_speed':self.wind_speed,\
                                               'wind_dir':self.wind_dir,'B11_corr':self.corr,'Red_corr':self.corr_red,'SZA':self.sza1,'VZA':self.vza1,\
                                               'SZA_ref':self.sza2,'VZA_ref':self.vza2  ,                                            
-                                               "R11" : self.R11, "R12": self.R12 , "R12old": self.R12old, "R11old": self.R11old     }                                      
+                                               "R11" : self.R11, "R12": self.R12 , "R12old": self.R12old, "R11old": self.R11old, "rgb": self.rgb}                                      
 
             
  
