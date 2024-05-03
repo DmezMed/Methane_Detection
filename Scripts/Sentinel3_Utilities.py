@@ -1262,10 +1262,10 @@ def create_folium_map(all_plume_names,
     folium.LayerControl().add_to(m)
     m.save(fig_folium_name)
 
-def omega_plot(omega, cmap='inferno', norm='log', show_scalebar='True', scale=1):
+def omega_plot(omega, cmap='inferno', norm='log', show_colorbar=True, cbar_orientation='horizontal', show_scalebar=True, scale=1):
     plt.imshow(omega, cmap=cmap, norm=norm)
-    plt.colorbar(label='methane anomaly ($mol/m^2$)', orientation='horizontal')
-    plt.gca().invert_yaxis()
+    if show_colorbar:
+        plt.colorbar(label='methane anomaly ($mol/m^2$)', orientation=cbar_orientation)
     if show_scalebar:
         scalebar = ScaleBar(scale, 'm', location='lower right')
         plt.gca().add_artist(scalebar)
@@ -1282,9 +1282,10 @@ def lon_fmt(val, pos):
     else:
         return f'{val:.2f}$\degree$W'
 
-def omega_plot_with_axis(lon_grid, lat_grid, omega, cmap='inferno', norm='log'):
+def omega_plot_with_axis(lon_grid, lat_grid, omega, cmap='inferno', norm='log', show_colorbar=True, cbar_orientation='horizontal'):
     plt.pcolormesh(lon_grid, lat_grid, omega, cmap=cmap, norm=norm)
-    plt.colorbar(label='methane anomaly ($mol/m^2$)', orientation='horizontal')
+    if show_colorbar:
+        plt.colorbar(label='methane anomaly ($mol/m^2$)', orientation=cbar_orientation)
     plt.gca().xaxis.set_major_formatter(tick.FuncFormatter(lon_fmt))
     plt.gca().yaxis.set_major_formatter(tick.FuncFormatter(lat_fmt))
     plt.gca().xaxis.set_major_locator(plt.MultipleLocator(0.1))
